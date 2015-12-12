@@ -3,6 +3,10 @@ Solutions to *advent of code* in python3. Each code file is self-contained and r
 
 The command
 ```
-./run dayN
+./run <file>
 ```
-will run the code for the specified day with the correct input (e.g. `run day1` will run *./day1* with input taken from *inputs/day1*). Input is given through command line arguments.
+will run `file` with the correct input (e.g. `run day1` will run *./day1* with input taken from *inputs/day1*). Input is given through command line arguments. The special case
+```
+./run -A
+```
+will run all solution files.

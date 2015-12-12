@@ -3,22 +3,51 @@
 import subprocess
 import sys
 import resource
+import os
+from os import path
+import re
 
-inputs = []
+if sys.argv[1] == '-A':
+    files = [f for f in os.listdir('.') if path.isfile(f) and re.match('^(day\d+)$', f)]
 
-with open('./inputs/' + sys.argv[1]) as f:
+    processes = dict()
+    for f in files:
+        processes[f] = subprocess.Popen(['./run', f], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    for f, p in sorted(processes.items(), key=lambda x: int(x[0][3:])):
+        print('>>' + f.upper())
+        for line in p.stdout:
+            print(line.decode('utf8'), end='')
+        p.wait()
+        print()
+    sys.exit()
+
+def error(msg, err):
+    print(msg)
+    if err:
+        err()
+
+def checkFile(f, err=sys.exit):
+    if not path.isfile(f):
+        error('File not found: "' + f + '"', err)
+
+target = './' + sys.argv[1]
+checkFile(target)
+
+inputPath = './inputs/' + sys.argv[1]
+checkFile(inputPath)
+
+with open(inputPath) as f:
     inputs = f.read().split('\n')
 
 if inputs[len(inputs)-1] == '':
-    inputs = inputs[:-1]
+    inputs = inputs[:-1] #ignore trailing newlines
 
-args = ['./' + sys.argv[1]] + inputs
+args = [target] + inputs
 
 soft, hard = resource.getrlimit(resource.RLIMIT_AS)
-soft = 1024**3
+soft = 1024**3 # 1 GiB
 if hard != resource.RLIM_INFINITY and hard < soft:
     soft = hard
 resource.setrlimit(resource.RLIMIT_AS, (soft, hard))
 subprocess.call(args)
-
-
