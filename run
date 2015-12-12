@@ -6,6 +6,7 @@ import resource
 import os
 from os import path
 import re
+import time
 
 if sys.argv[1] == '-A':
     files = [f for f in os.listdir('.') if path.isfile(f) and re.match('^(day\d+)$', f)]
@@ -50,4 +51,17 @@ soft = 1024**3 # 1 GiB
 if hard != resource.RLIM_INFINITY and hard < soft:
     soft = hard
 resource.setrlimit(resource.RLIMIT_AS, (soft, hard))
+
+start = time.perf_counter()
 subprocess.call(args)
+end = time.perf_counter()
+
+elapsed = end-start
+unit = None
+if elapsed < 1:
+    elapsed *= 1e3
+    unit = 'ms'
+else:
+    unit = 's'
+
+print('({0:.2f}{1})'.format(elapsed, unit))
