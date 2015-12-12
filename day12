@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+import json
+
+def findNumbers(s):
+    return (m.groups()[0] for m in re.finditer('([+-]?\\d+)', s))
+
+def removeRed(jsonObjs):
+    toCheck = [jsonObjs]
+    addObjs = lambda objs: toCheck.extend(obj for obj in objs if isinstance(obj, list) or isinstance(obj, dict))
+
+    while len(toCheck) > 0:
+        obj=toCheck.pop()
+        if isinstance(obj, dict):
+            if 'red' in obj.values():
+                obj.clear()
+                continue
+            addObjs(obj.values())
+        elif isinstance(obj, list):
+            addObjs(obj)
+
+def jsonSum(jsonObjs):
+    toSum = [jsonObjs]
+    sum = 0
+    while len(toSum) > 0:
+        obj = toSum.pop()
+        if isinstance(obj, dict):
+            toSum.extend(obj.values())
+        elif isinstance(obj, list):
+            toSum.extend(obj)
+        elif isinstance(obj, int):
+            sum += obj
+    return sum
+
+if __name__ == '__main__':
+    jsonText = sys.argv[1]
+    print('Sum of numbers:', sum(map(int, findNumbers(jsonText))))
+    
+    jsonObjs = json.loads(jsonText)
+    removeRed(jsonObjs)
+    print('Sum of numbers (red excluded):', jsonSum(jsonObjs))
