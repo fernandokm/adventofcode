@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+
+CHARS = {i: chr(i) for i in range(ord('a'), ord('z') + 1)}
+
+def skip(iterator, n):
+    for _ in range(n):
+        next(iterator, None)
+
+def straights(psw, expected):
+    count = 0
+    zipped = zip(psw, psw[1:], psw[2:])
+    for c1, c2, c3 in zipped:
+        if ord(c1) + 2 == ord(c2) + 1 == ord(c3):
+            count += 1
+            if count == expected:
+                return True
+            skip(zipped, 2)
+
+    return False
+
+def pairs(psw, expected):
+    count = 0
+    for _ in re.finditer('(.)\\1', psw):
+        count += 1
+        if count == expected:
+            return True
+    return False
+
+def isValid(psw):
+    return (
+        len(psw) == 8
+        and not any(x in psw for x in ['i', 'o', 'l'])
+        and pairs(psw, 2)
+        and straights(psw, 1)
+    )
+
+def getPasswords(start):
+    if start == '':
+        yield ''
+        return
+    for prefix in getPasswords(start[:-1]):
+        for ch in range(ord(start[-1]), ord('z') + 1):
+             yield prefix + CHARS[ch]
+        start = 'a' * len(start)
+
+def getNextValids(start):
+    for psw in getPasswords(start):
+        if isValid(psw):
+            yield psw
+
+if __name__ == '__main__':
+    psw1 = sys.argv[1]
+    validPasswords = getNextValids(psw1)
+    psw2 = next(validPasswords)
+    print('Password after ' + psw1 + ': ' + psw2)
+
+    psw3 = next(validPasswords)
+    print('Password after ' + psw2 + ': ' + psw3)
