@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+import re
+import collections
+import itertools
+
+def parseDistance(s):
+    loc1, loc2, dist = re.match('(\\w+) to (\\w+) = (\\d+)', s).groups()
+    return loc1, loc2, int(dist)
+
+def getDistTree(dists):
+    tree = collections.defaultdict(dict)
+    for location1, location2, dist in dists:
+        tree[location1][location2] = dist
+        tree[location2][location1] = dist
+    return tree
+
+def getLocations(tree):
+    return tree.keys()
+
+def getDistForPath(tree, path):
+    return sum(map((lambda x: tree[x[0]][x[1]]), zip(path, path[1:])))
+
+def getOptimalPath(tree, best=min):
+    locations = getLocations(tree)
+    distances = [(p, getDistForPath(tree, p)) for p in itertools.permutations(locations)]
+    bestDist = best(dist for _, dist in distances)
+    optimal = filter(lambda x: x[1] == bestDist, distances)
+    return list(optimal)
+
+if __name__ == '__main__':
+    distances = map(parseDistance, sys.argv[1:])
+    distTree = getDistTree(distances)
+
+    path, dist = getOptimalPath(distTree)[0]
+    print('Shortest path:', ', '.join(path), '- dist', dist)
+
+    path, dist = getOptimalPath(distTree, max)[0]
+    print('Longest path:', ', '.join(path), '- dist', dist)

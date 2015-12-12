@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+import operator
+
+def parseGateInput(x):
+    try:
+        val = int(x)
+        return lambda _: val
+    except ValueError:
+        return operator.itemgetter(x)
+
+def parseInstruction(s):
+    ops={'NOT': lambda x: ~x & 0xFFFF, 'AND': operator.and_, 'OR': operator.or_, 'LSHIFT': operator.lshift, 'RSHIFT': operator.rshift}
+    expr, out = s.split(' -> ')
+    parts = expr.split(' ')
+    if len(parts) == 3:
+        op = ops[parts[1]]
+        args = parseGateInput(parts[0]), parseGateInput(parts[2])
+    elif len(parts) == 2:
+        op = ops[parts[0]]
+        args = parseGateInput(parts[1]),
+    else:
+        op = operator.pos
+        args = parseGateInput(parts[0]),
+    
+    return op, args, out
+
+def setConnection(circuit, instruction):
+    op, args, out = instruction
+    circuit[out] = lambda: op(*[arg(circuit) for arg in args])
+
+def turnOn(circuit):
+    done = False
+    while not done:
+        done = True
+        for k, v in circuit.items():
+            if callable(v):
+                try:
+                    circuit[k] = v()
+                except:
+                    done = False
+
+if __name__ == '__main__':
+    instructions = list(map(parseInstruction, sys.argv[1:]))
+
+    circuit = dict()
+    for i in instructions:
+        setConnection(circuit, i)
+    turnOn(circuit)
+    a = circuit['a']
+    print('Wire "a":', a)
+        
+    circuit = dict()
+    for i in instructions:
+        setConnection(circuit, i)
+    setConnection(circuit, parseInstruction(str(a) + ' -> b'))
+    turnOn(circuit)
+    print('Wire "a":', circuit['a'])

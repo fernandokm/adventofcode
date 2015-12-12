@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+import re
+
+def decode(s):
+    s = s[1:-1] # remove double-quote characters surrounding s
+    s = s.replace('\\\"', '\"').replace('\\\\', '\\')
+    s = re.sub('\\\\x[0-9a-fA-F]{2}', '_', s)
+    return s
+
+def encode(s):
+    s = s.replace('\\', '\\\\').replace('"', '\\\"')
+    return '"' + s + '"'
+
+if __name__ == '__main__':
+    strings = sys.argv[1:]
+    decoded = map(decode, strings)
+    encoded = map(encode, strings)
+
+    print('In-memory strings are', sum(map(len, strings)) - sum(map(len, decoded)), 'chars smaller than the string literals')
+    print('String literals are', sum(map(len, encoded)) - sum(map(len, strings)), 'chars smaller than the encoded strings')

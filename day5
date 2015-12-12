@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+
+def isNice(s):
+    hasRequiredVowels = sum(s.count(vowel) for vowel in 'aeiou') >= 3
+    hasRepeatedLetter = any(s[i] == s[i+1] for i in range(len(s)-1))
+    hasForbiddenStrings = any(string in s for string in ['ab', 'cd', 'pq', 'xy'])
+    return hasRequiredVowels and hasRepeatedLetter and not hasForbiddenStrings
+
+def isNice2(s):
+    hasRepeatedPair = any(s.count(pair) > 1 for pair in map(lambda x: x[0] + x[1], zip(s, s[1:])))
+    hasRepeatedLetter = any(s[i] == s[i+2] for i in range(len(s)-2))
+    return hasRepeatedPair and hasRepeatedLetter
+
+if __name__ == '__main__':
+    strings = sys.argv[1:]
+
+    print('There are', sum(map(isNice, strings)), 'nice strings')
+    print('There are', sum(map(isNice2, strings)), 'really nice strings')
