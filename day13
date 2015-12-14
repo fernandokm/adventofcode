@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+from collections import defaultdict
+import itertools
+
+def parseHappinessChange(line):
+    m = re.match('^(.*) would (gain|lose) (\d+) happiness units by sitting next to (.*).$', line)
+    person = m.group(1)
+    neighbour = m.group(4)
+    change = int(m.group(3))
+    if m.group(2) == 'lose':
+        change = -change
+    return person, neighbour, change
+
+def getHappinessTree(changes):
+    tree = defaultdict(dict)
+    for person, neighbour, change in changes:
+        tree[person][neighbour] = change
+    return tree
+
+def rotate(l, n):
+    return l[n:] + l[:n]
+
+def getHappinessChange(changeTree, seating):
+    change = 0
+    for person1, person2 in zip(rotate(seating, 1), seating):
+        change += changeTree[person1][person2] + changeTree[person2][person1]
+    return change
+
+def getSeatings(changeTree):
+    return itertools.permutations(changeTree.keys())
+
+def getOptimalSeating(changeTree):
+    return max(getSeatings(changeTree), key=lambda seating: getHappinessChange(changeTree, seating))
+
+def addMyself(changeTree, myName):
+    for k in list(changeTree.keys()):
+        changeTree[k][myName] = 0
+        changeTree[myName][k] = 0
+
+if __name__ == '__main__':
+    changeTree = getHappinessTree(map(parseHappinessChange, sys.argv[1:]))
+    optimal = getOptimalSeating(changeTree)
+    print('Change in happiness for optimal seating:', getHappinessChange(changeTree, optimal))
+
+    addMyself(changeTree, '__me')
+    optimal = getOptimalSeating(changeTree)
+    print('Change in happiness for optimal seating including myself:', getHappinessChange(changeTree, optimal))
