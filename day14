@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+import itertools
+
+def parseReindeer(s):
+    groups = re.match('(.*) can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds.', s).groups()
+    return groups[0], int(groups[1]), int(groups[2]), int(groups[3]) # name, speed, flyTime, restTime
+
+def distTravelled(reindeer, time):
+    _, speed, fly, rest = reindeer
+    dist = 0
+    while time > 0:
+        t = min(time, fly)
+        dist += speed * t
+        time -= t
+        time -= rest
+    return dist
+
+def distsTravelled(reindeer):
+    _, speed, fly, rest = reindeer
+    dist = 0
+    while True:
+        for i in range(fly):
+            dist += speed
+            yield dist
+        for i in range(rest):
+            yield dist
+        
+
+def getWinnerByDist(reindeers, time):
+    return max(reindeers, key=lambda x: distTravelled(x, time))
+
+def getWinnerByPoints(reindeers, time):
+    points = {r: 0 for r in reindeers}
+    distsPerSec = zip(*map(distsTravelled, reindeers))
+    for distances in itertools.islice(distsPerSec, time):
+        m = max(distances)
+        for r, dist in zip(reindeers, distances):
+            if dist == m:
+                points[r] += 1
+    winner, score = max(points.items(), key=lambda x: x[1])
+    return winner, score
+
+if __name__ == '__main__':
+    reindeers = list(map(parseReindeer, sys.argv[1:]))
+    winner = getWinnerByDist(reindeers, 2503)
+    print('The winner by distance after 2503 seconds has travelled:', distTravelled(winner, 2503))
+    print('The winner by points after 2503 seconds has', getWinnerByPoints(reindeers, 2503)[1], 'points')
