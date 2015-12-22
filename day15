@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+from collections import defaultdict
+
+def parseIngredient(s):
+    m = re.match('(.+): capacity ([+-]?\d+), durability ([+-]?\d+), flavor ([+-]?\d+), texture ([+-]?\d+), calories ([+-]?\d+)', s)
+    name = m.groups()[0]
+    props = tuple(map(int, m.groups()[1:]))
+    return name, props #name, capacity, durability, flavor, texture, calories
+
+def ingredientDict(ings):
+    return dict(ings)
+
+def getCookieScore(ingredients, proportions):
+    propCount = len(next(iter(ingredients.values()))) - 1 # ignore calories
+    props = [0] * propCount
+    for name, proportion in proportions.items():
+        ingProps = ingredients[name]
+        for i in range(propCount):
+            props[i] += ingProps[i] * proportion
+    score = 1
+    for prop in props:
+        if prop < 1:
+            return 0
+        score *= prop
+    return score
+
+def allProportions(n, ingredients, leftover=100):
+    if n == 1:
+        yield {ingredients[0]: leftover}
+        return
+    for i in range(leftover + 1):
+        for proportions in allProportions(n-1, ingredients[1:], leftover-i):
+            proportions[ingredients[0]] = i
+            yield proportions
+
+def bestIngredientScore(ingredients, calories=-1):
+    def cals(proportions):
+        c = 0
+        for ing, prop in proportions.items():
+            c += prop * ingredients[ing][-1]
+        return c
+    return max(getCookieScore(ingredients, proportions)
+               for proportions in allProportions(len(ingredients), list(ingredients.keys()))
+               if calories < 0 or cals(proportions) == calories)
+
+ings = ingredientDict(map(parseIngredient, sys.argv[1:]))
+
+print('Best score:', bestIngredientScore(ings))
+print('Best score with 50 calories:', bestIngredientScore(ings, calories=500))
