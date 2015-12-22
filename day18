@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+
+def parseGrid(lines):
+    grid = [[False] * (len(lines[0])+2)]
+    for line in lines:
+        row = [False]
+        for c in line:
+            row.append(c == '#')
+        row.append(False)
+        grid.append(row)
+    grid.append(grid[0].copy())
+        
+    return grid
+
+def neighborsOn(grid, row, col):
+    return sum(grid[i][j]
+               for i in (row-1, row, row+1)
+               for j in (col-1, col, col+1)
+               if (i, j) != (row, col))
+
+def nextState(grid, row, col):
+    if grid[row][col]:
+        return neighborsOn(grid, row, col) in (2, 3)
+    else:
+        return neighborsOn(grid, row, col) == 3
+
+def updated(grid):
+    newGrid = [grid[0]]
+    for i in range(1, len(grid)-1):
+        row = [False]
+        for j in range(1, len(grid[i])-1):
+            row.append(nextState(grid, i, j))
+        row.append(False)
+        newGrid.append(row)
+    newGrid.append(grid[0])
+    return newGrid
+
+def turnOnCorners(grid):
+    for row in (1, len(grid)-2):
+        for col in (1, len(grid[0])-2):
+            grid[row][col] = True
+
+if __name__ == '__main__':
+    grid = parseGrid(sys.argv[1:])
+    grid2 = grid
+    for _ in range(100):
+        grid2 = updated(grid2)
+    print('Lights on after 100 steps:', sum(light for row in grid2 for light in row))
+    
+    grid3 = [row.copy() for row in grid]
+    turnOnCorners(grid3)
+    for _ in range(100):
+        grid3 = updated(grid3)
+        turnOnCorners(grid3)
+    print('Lights on fter 100 steps with corners stuck:', sum(light for row in grid3 for light in row))
