@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+
+def containerCombinations(containers, leftover):
+    containers = sorted(containers)
+    for i, cont in enumerate(containers):
+        if cont == leftover:
+            yield (cont,)
+        elif cont < leftover:
+            for comb in containerCombinations(containers[i+1:], leftover-cont):
+                yield (cont, ) + comb
+
+if __name__ == '__main__':
+    containers = list(map(int, sys.argv[1:]))
+    combinations = list(containerCombinations(containers, 150))
+    print('Combinations:',  len(combinations))
+
+    leastContainers = min(len(comb) for comb in combinations)
+    print('Combinations with the minimum number of containers:', sum(1 for _ in filter(lambda x: len(x) == leastContainers, combinations)))
+
