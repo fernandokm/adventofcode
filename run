@@ -10,16 +10,23 @@ import time
 
 if sys.argv[1] == '-A':
     files = [f for f in os.listdir('.') if path.isfile(f) and re.match('^(day\d+)$', f)]
-
+    files.sort(key=lambda x: int(x[3:]))
     processes = dict()
-    for f in files:
-        processes[f] = subprocess.Popen(['./run', f], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    
+    def runFile(f):
+        processes[f] = subprocess.Popen(['./run', f], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)       
+    
+    for f in files[:4]:
+        runFile(f)
 
-    for f, p in sorted(processes.items(), key=lambda x: int(x[0][3:])):
+    for i, f in enumerate(files):
+        if i+4 < len(files):
+            runFile(files[i+4])
+
         print('>>' + f.upper())
-        for line in p.stdout:
+        for line in processes[f].stdout:
             print(line.decode('utf8'), end='')
-        p.wait()
+        processes[f].wait()
         print()
     sys.exit()
 
