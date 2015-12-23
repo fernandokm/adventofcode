@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+from multiprocessing import Pool
+import numpy as np
+
+def presentsPerHouse(houses):
+    presents = np.zeros((1,houses), dtype=np.int64)
+    for i in range(1, houses+1):
+        presents[0, i-1::i] += i*10
+        yield presents[0, i-1]
+
+def presentsPerHouse2(houses):
+    presents = np.zeros((1,houses), dtype=np.int64)
+    for i in range(1, houses+1):
+        presents[0, i-1:(i-1)*50+1:i] += i*11
+        yield presents[0, i-1]
+
+if __name__ == '__main__':
+    presentCount = int(sys.argv[1])
+    
+    def p1():
+        for i, count in enumerate(presentsPerHouse(presentCount//10)):
+            if count >= presentCount:
+                return i+1
+
+    def p2():
+        for i, count in enumerate(presentsPerHouse2(presentCount//11)):
+            if count >= presentCount:
+                return i+1
+    
+    with Pool() as p:
+        a1 = p.apply_async(p1)
+        a2 = p.apply_async(p2)
+        
+        print('(part 1) First house with at least', presentCount, 'presents:', a1.get())
+        print('(part 2) First house with at least', presentCount, 'presents:', a2.get())
+
