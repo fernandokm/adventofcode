@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+# Copyright (C) 2015 Fernando Matsumoto
+
+import sys
+import re
+import collections
+import itertools
+
+def parseMolecule(s):
+    return tuple(re.findall('((?:[A-Z][a-z]?)|e)', s))
+
+def replacements(lines):
+    repl = collections.defaultdict(list)
+    for line in lines:
+        k, v = line.split(' => ')
+        repl[k].append(parseMolecule(v))
+    return repl
+
+def outputs(molecule, repls):
+    for i, atom in enumerate(molecule):
+        start = molecule[:i]
+        end = molecule[i+1:]
+        for repl in repls[atom]:
+            yield start + repl + end
+
+if __name__ == '__main__':
+    medicine = parseMolecule(sys.argv[-1])
+    repls = replacements(sys.argv[1:-2])
+    print('Distinct molecules after 1 replacement on the medicine:', len(set(outputs(medicine, repls))))
+    print('Fewest number of steps to reach medicine from e:', len(medicine) - medicine.count('Rn') - medicine.count('Ar') - 2*medicine.count('Y') - 1)
+    # src: https://www.reddit.com/r/adventofcode/comments/3xflz8/day_19_solutions/cy4etju
