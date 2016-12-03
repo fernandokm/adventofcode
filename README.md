@@ -1,12 +1,11 @@
 # [Advent of Code](http://adventofcode.com/) 
-Solutions to *advent of code* in python3. Each code file is self-contained and requires only the appropriate inputs, taken from the files in *inputs/...*
+Solutions to *advent of code* (2015/2016) in python3. Each code file is self-contained and requires only the appropriate inputs, taken from the files in *inputs/...*.
 
-The command
+The command `run` will run the code for the specified day/year with input taken from *./2015/inputs/day1* and passed to the scripts through command line arguments.
+
+Usage: 
 ```
-./run <file>
+run <year>/day<n> # run script for day n of the specified year
+run <year> # run the scripts for all days of the specified year
+run -A # run the scripts for all days of all years
 ```
-will run `file` with the correct input (e.g. `run day1` will run *./day1* with input taken from *inputs/day1*). Input is given through command line arguments. The special case
-```
-./run -A
-```
-will run all solution files.

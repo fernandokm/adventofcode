@@ -1,74 +1,99 @@
 #!/usr/bin/env python3
 
+"""
+Runs the advent of code solutions
+"""
+
 import subprocess
 import sys
-import resource
 import os
 from os import path
 import re
 import time
+from multiprocessing.pool import Pool
 
-if sys.argv[1] == '-A':
-    files = [f for f in os.listdir('.') if path.isfile(f) and re.match('^(day\d+)$', f)]
-    files.sort(key=lambda x: int(x[3:]))
-    processes = dict()
-    
-    def runFile(f):
-        processes[f] = subprocess.Popen(['./run', f], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)       
-    
-    for f in files[:4]:
-        runFile(f)
 
-    for i, f in enumerate(files):
-        if i+4 < len(files):
-            runFile(files[i+4])
+def timeProcess(args):
+    start = time.perf_counter()
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    output = [line for line in proc.stdout]
+    end = time.perf_counter()
 
-        print('>>' + f.upper())
-        for line in processes[f].stdout:
-            print(line.decode('utf8'), end='')
-        processes[f].wait()
-        print()
-    sys.exit()
-
-def error(msg, err):
-    print(msg)
-    if err:
-        err()
-
-def checkFile(f, err=sys.exit):
-    if not path.isfile(f):
-        error('File not found: "' + f + '"', err)
-
-target = './' + sys.argv[1]
-checkFile(target)
-
-inputPath = './inputs/' + sys.argv[1]
-checkFile(inputPath)
-
-with open(inputPath) as f:
-    inputs = f.read().split('\n')
-
-if inputs[len(inputs)-1] == '':
-    inputs = inputs[:-1] #ignore trailing newlines
-
-args = [target] + inputs
-
-soft, hard = resource.getrlimit(resource.RLIMIT_AS)
-soft = 1024**3 # 1 GiB
-if hard != resource.RLIM_INFINITY and hard < soft:
-    soft = hard
-resource.setrlimit(resource.RLIMIT_AS, (soft, hard))
-
-start = time.perf_counter()
-subprocess.call(args)
-end = time.perf_counter()
-
-elapsed = end-start
-unit = None
-if elapsed < 1:
-    elapsed *= 1e3
-    unit = 'ms'
-else:
+    elapsed = end-start
     unit = 's'
+    if elapsed < 1:
+        elapsed *= 1e3
+        unit = 'ms'
 
-print('({0:.2f}{1})'.format(elapsed, unit))
+    text = ''.join(line.decode('utf8') for line in output)
+    return (text[:-1], #Remove trailing newline
+            '({0:.2f} {1})'.format(elapsed, unit))
+
+def checkCodeFile(_path):
+    if not path.isfile(_path):
+        raise ValueError('File not found: "' + _path + '"')
+    elif not re.match(r'^(\./)?\d{4}/day\d+$', _path):
+        raise ValueError('Invalid input: ' + _path)
+
+def getYears():
+    return [int(dir) for dir in os.listdir('.')
+            if path.isdir(dir) and re.match(r'^\d{4}$', dir)]
+
+def getCodeFilesForYear(year):
+    year = str(year)
+    files = [f for f in os.listdir('./' + year)
+             if path.isfile(year + '/' + f) and re.match(r'^(day\d+)$', f)]
+    return [year + '/' + f for f in sorted(files, key=lambda x: int(x[3:]))]
+
+def getInputs(codePath):
+    i = codePath.rindex('/')
+    inputPath = codePath[:i] + '/inputs' + codePath[i:]
+
+    with open(inputPath) as file:
+        inputs = file.read().split('\n')
+    if inputs[len(inputs)-1] == '':
+        inputs = inputs[:-1] #ignore trailing newlines
+    return inputs
+
+def runDay(_path):
+    checkCodeFile(_path)
+    text, elapsed = timeProcess([_path] + getInputs(_path))
+    text = '>> ' + _path.upper() + '\n' + text
+    return text, elapsed
+
+def _runDaysFunc(_path):
+    try:
+        return runDay(_path)
+    except KeyboardInterrupt: # Avoid stderr output on ^C
+        pass
+
+def runDays(paths):
+    with Pool() as pool:
+        for out, elapsed in pool.imap(_runDaysFunc, paths):
+            print(out, elapsed, '', sep='\n')
+
+def run():
+    if len(sys.argv) < 2:
+        print('Usage:', 'run <year>/day<n>', 'run <year>', 'run -A', sep='\n')
+        return
+    elif sys.argv[1] == '-A' or re.match(r'^\d{4}$', sys.argv[1]):
+        if sys.argv[1] == '-A':
+            years = getYears()
+        else:
+            years = sys.argv[1:]
+        files = [file
+                 for year in years
+                 for file in getCodeFilesForYear(int(year))]
+    else:
+        files = sys.argv[1:]
+        for file in files:
+            checkCodeFile(file)
+
+    runDays(files)
+
+if __name__ == '__main__':
+    try:
+        run()
+    except KeyboardInterrupt: # Avoid stderr output on ^C
+        pass
