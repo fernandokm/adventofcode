@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2015 Fernando Matsumoto
+# Copyright (C) 2016 Fernando Matsumoto
 
 import sys
 import itertools
