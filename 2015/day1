@@ -1,12 +1,28 @@
 #!/usr/bin/env python3
 # Copyright (C) 2016 Fernando Matsumoto
 
+"""
+Advent of Code - 2016
+Day 1: Not Quite Lisp
+
+Part One: given a set of instructions to go up or down
+          a floor and starting at floor 0, find the floor
+          Santa will get to.
+
+Part Two: find the one-based index of first instruction
+          which causes Santa to enter the basement.
+
+Instruction format: a string of the characters
+                        '(' - go up
+                        ')' - go down
+"""
+
 import sys
 
-def printFloor(puzzleInput):
+def findFinalFloor(puzzleInput):
     up = puzzleInput.count('(')
     down = puzzleInput.count(')')
-    print("Up: {0}    Down: {1}    Total: {2}".format(up, down, up-down))
+    return up-down
 
 def charPositionOnFloor(puzzleInput, n):
     if n == 0:
@@ -22,6 +38,10 @@ def charPositionOnFloor(puzzleInput, n):
 
     return -1
 
+def run():
+    puzzleInput = sys.argv[1]
+    print('Final floor:', findFinalFloor(puzzleInput))
+    print('Char position at floor -1: ', charPositionOnFloor(puzzleInput, -1))
+
 if __name__ == '__main__':
-    printFloor(sys.argv[1])
-    print('Char position at floor -1: ', charPositionOnFloor(sys.argv[1], -1))
+    run()
