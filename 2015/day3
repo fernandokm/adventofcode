@@ -1,6 +1,30 @@
 #!/usr/bin/env python3
 # Copyright (C) 2016 Fernando Matsumoto
 
+"""
+Advent of Code - 2016
+Day 2: I Was Told There Would Be No Math
+
+Part One:
+    given the instructions to move north, south, east
+    or west in a grid of houses, find the number of
+    houses which receive at least one present.
+    Including the initial position, every house Santa
+    goes through receives a present.
+
+Part Two:
+    given that there are now Santa and Robo-Santa,
+    taking turns to move based on the same set of
+    instructions, find the number of houses which
+    receive at least one present.
+
+Instruction format: a string of the characters
+                        ^ - north
+                        v - south
+                        > - east
+                        < - west
+"""
+
 import sys
 
 def move(point, direction):
@@ -9,16 +33,15 @@ def move(point, direction):
     return (x1 + x2, y1 + y2)
 
 def getPointsPassed(path):
-    points = set()
     p = (0, 0)
-    points.add(p)
+    points = {p}
     for direction in path:
         p = move(p, direction)
         points.add(p)
     return points
 
 def getHousesPassed(fullPath, santas=1):
-    paths = list(map(lambda _: [], range(santas)))
+    paths = [[] for _ in range(santas)]
     for i, direction in enumerate(fullPath):
         paths[i % santas].append(direction)
 
@@ -27,7 +50,10 @@ def getHousesPassed(fullPath, santas=1):
         houses |= getPointsPassed(path)
     return houses
 
-if __name__ == '__main__':
+def run():
     path = sys.argv[1]
-    print('Santa has passed through', len(getHousesPassed(path)), 'houses')
-    print('Santa and Robo-Santa have passed through', len(getHousesPassed(path, 2)), 'houses')
+    print('Houses Santa has passed through:', len(getHousesPassed(path)))
+    print('Houses Santa and Robo-Santa have passed through:', len(getHousesPassed(path, 2)))
+
+if __name__ == '__main__':
+    run()
