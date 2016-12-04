@@ -11,7 +11,7 @@ distance to the building walking in a street grid.
 
 Instruction format: direction to turn (left or right)
                     followed by a distance to walk.
-                    e.g. 'R4, L2'
+                    E.g. 'R4, L2'
 """
 
 import sys

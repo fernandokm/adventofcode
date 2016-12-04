@@ -22,7 +22,7 @@ Instruction format: the nth input line
                     D - down
                     L - left
                     R - right
-                    e.g. UUDLU
+                    E.g. UUDLU
 """
 
 import sys
