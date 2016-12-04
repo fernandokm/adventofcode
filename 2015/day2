@@ -1,13 +1,32 @@
 #!/usr/bin/env python3
 # Copyright (C) 2016 Fernando Matsumoto
 
+"""
+Advent of Code - 2016
+Day 2: I Was Told There Would Be No Math
+
+Part One: given the sides of each box, find the total
+          amount of paper required to wrap all boxes.
+          Each box requires its surface area plus the
+          area of its smallest side of wrapping paper.
+
+Part Two: find the total amount of ribbon required to
+          wrap all boxes. Each box requires the smallest
+          perimeter of any one face plus the product of
+          its side lengths of ribbon.
+
+Formula for surface area of L*W*H box: 2LW + 2WH + 2HL.
+
+Instruction format: each line will contain the side lengths
+                    of a box separated by the character 'x'.
+                    E.g. '6x10x13'.
+"""
+
 import sys
 
-def parseInput(measuresInput):
-    measures = measuresInput.split('x')
-    if len(measures) != 3:
-        raise ValueError('A box should have 3 measures (length, width, height): "', measuresInput, '"')
-    return list(map(int, measures))
+def parseInput(line):
+    measures = line.split('x')
+    return tuple(int(x) for x in measures)
 
 def getPaperArea(measures):
     l, w, h = measures
@@ -22,9 +41,10 @@ def getRibbonLength(measures):
     bow = l * w * h
     return wrap + bow
 
+def run():
+    inputs = [parseInput(line) for line in sys.argv[1:]]
+    print('Paper area: ', sum(getPaperArea(x) for x in inputs))
+    print('Ribbon length: ', sum(getRibbonLength(x) for x in inputs))
 
 if __name__ == '__main__':
-    inputs = list(map(parseInput, sys.argv[1:]))
-    
-    print('Paper area: ', sum(map(getPaperArea, inputs)))
-    print('Ribbon length: ', sum(map(getRibbonLength, inputs)))
+    run()
