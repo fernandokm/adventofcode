@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# Copyright (C) 2016 Fernando Matsumoto
+
+"""
+Advent of coding - 2016
+Day 3: Squares With Three Sides
+
+Given a sequence of lines describing the side lengths
+of a triangle, calculate how many of them are possible.
+
+A possible triangle is one that follows a modified
+version of the triangle inequality:
+    the sum of any two sides of a triangle must be
+    strictly greater than the remaining side.
+
+Instruction format (Part One):
+    each line will contain three space separated
+    values indicating the side lengths of a triangle.
+
+Instruction format (Part Two):
+    same format as in Part One, but each triangle is
+    represented by a set of three values in a column
+    of the input.
+"""
+
+import sys
+
+def parseTriangleRow(s):
+    return tuple(int(x) for x in s.split())
+
+def parseTriangleCol(lines):
+    lengths = [[int(x) for x in line.split()] for line in lines]
+    triangles = [(lengths[i*3][j], lengths[i*3+1][j], lengths[i*3+2][j])
+                 for i in range(int(len(lines)/3))
+                 for j in range(3)]
+    return triangles
+
+
+def isTrianglePossible(triangle):
+    a, b, c = triangle
+    return a + b > c and a + c > b and b + c > a
+
+def countPossibleTriangles(triangles):
+    return sum(isTrianglePossible(triangle) for triangle in triangles)
+
+def run():
+    trianglesRow = [parseTriangleRow(s) for s in sys.argv[1:]]
+    trianglesCol = parseTriangleCol(sys.argv[1:])
+    print('Possible triangles (row):', countPossibleTriangles(trianglesRow))
+    print('Possible triangles (col):', countPossibleTriangles(trianglesCol))
+
+if __name__ == '__main__':
+    run()
