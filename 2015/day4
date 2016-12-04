@@ -1,30 +1,55 @@
 #!/usr/bin/env python3
 # Copyright (C) 2016 Fernando Matsumoto
 
+"""
+Advent of Code - 2016
+Day 4: The Ideal Stocking Stuffer
+
+Part One: given a secret key, find the smallest integer
+          which, appended to this key (without leading
+          zeroes), produces an MD5 hash which starts
+          with at least 5 zeroes (in hexadecimal).
+
+Part Two: same as Part One, except the hash should start
+          with at least 6 zeroes.
+
+Instruction format: the secret key.
+"""
+
 from hashlib import md5
 import itertools
 import sys
-from multiprocessing_on_dill import Pool
+from multiprocessing import Pool
 
 def getHash(s):
-    m = md5()
-    m.update(s.encode('utf8'))
-    return m.hexdigest()
+    return md5(s.encode('utf8')).hexdigest()
 
-def findSmallestIntSuffix(prefix, condition):
+RANGE_SIZE = 10000
+
+def isRangeValidFiveZeroes(start):
+    for i in range(start, start+RANGE_SIZE):
+        if getHash(PREFIX + str(i))[:5] == '00000':
+            return True, i
+    return False, None
+
+def isRangeValidSixZeroes(start):
+    for i in range(start, start+RANGE_SIZE):
+        if getHash(PREFIX + str(i))[:6] == '000000':
+            return True, i
+    return False, None
+
+def findSmallestIntSuffix(validityFunc):
     with Pool() as p:
-        def isRangeValid(start):
-            for i in range(start, start+10000):
-                if condition(getHash(prefix + str(i))):
-                    return True, i
-            return False, None
-        hashes = p.imap(isRangeValid, itertools.count(step=10000), 4)
+        hashes = p.imap(validityFunc, itertools.count(step=RANGE_SIZE))
         for valid, index in hashes:
             if valid:
                 return index
 
-if __name__ == '__main__':
-    prefix = sys.argv[1]
+def run():
+    print('Five zeroes:', findSmallestIntSuffix(isRangeValidFiveZeroes))
+    print('Six zeroes:', findSmallestIntSuffix(isRangeValidSixZeroes))
 
-    print('Five zeroes:', findSmallestIntSuffix(prefix, lambda x: x[:5] == '00000'))
-    print('Six zeroes:', findSmallestIntSuffix(prefix, lambda x: x[:6] == '000000'))
+PREFIX = sys.argv[1]
+
+if __name__ == '__main__':
+    run()
