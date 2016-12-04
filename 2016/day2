@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+# Copyright (C) 2016 Fernando Matsumoto
+
+"""
+Advent of coding - 2016
+Day 2: Bathroom Security
+
+Given a sequence of instructions, find the code to
+the Easter Bunny Headquarters bathroom.
+
+Each button can be found by starting at the previous button
+(or the button 5, for the first digit) and making a series
+of moves in a 3x3 keypad:
+    1 2 3
+    4 5 6
+    7 8 9
+
+Instruction format: the nth input line
+                    will provide the nth digit of the code
+                    and will be made up of single digit instructions:
+                    U - up
+                    D - down
+                    L - left
+                    R - right
+                    e.g. UUDLU
+"""
+
+import sys
+
+def normalizeIndex(i, lbound, ubound):
+    if i < lbound:
+        return lbound
+    if i > ubound:
+        return ubound
+    return i
+
+class Keypad:
+    def __init__(self):
+        self.buttons = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        self.row = 1
+        self.col = 1
+        self.digits = []
+
+    def move(self, direction):
+        if direction in 'UD':
+            self.row = normalizeIndex(self.row + {'U': -1, 'D': +1}[direction], 0, 2)
+        elif direction in 'LR':
+            self.col = normalizeIndex(self.col + {'L': -1, 'R': +1}[direction], 0, 2)
+
+    def saveDigit(self):
+        self.digits.append(str(self.buttons[self.row][self.col]))
+
+    def code(self):
+        return ''.join(self.digits)
+
+def findCode(instructions):
+    keypad = Keypad()
+    for line in instructions:
+        for direction in line:
+            keypad.move(direction)
+        keypad.saveDigit()
+    return keypad.code()
+
+def run():
+    instructions = sys.argv[1:]
+    print('Bathroom code:', findCode(instructions))
+
+if __name__ == '__main__':
+    run()
