@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+# Copyright (C) 2016 Fernando Matsumoto
+
+"""
+Advent of coding - 2016
+Day 1: No Time for a Taxicab
+
+Given a sequence of comma separated instructions to arrive
+at the Easter Bunny Headquarters, calculate the minimum
+distance to the building walking in a street grid.
+
+Instruction format: direction to turn (left or right)
+                    followed by a distance to walk.
+                    e.g. 'R4, L2'
+"""
+
+import sys
+
+def parseInstructions(s):
+    return [[x[0].upper(), int(x[1:])] for x in s.split(', ')]
+
+class Person:
+    def __init__(self):
+        self.direction = 0
+        self.movements = [0] * 4
+
+    def turn(self, direction):
+        turn = {'R': 1, 'L': -1}[direction]
+        self.direction = (self.direction + turn) % 4
+
+    def walk(self, dist):
+        self.movements[self.direction] += dist
+
+    def dist(self):
+        return abs(self.movements[0] - self.movements[2]) \
+               + abs(self.movements[1] - self.movements[3])
+
+def findMinDist(instructions):
+    person = Person()
+    for (turn, distance) in instructions:
+        person.turn(turn)
+        person.walk(distance)
+    return person.dist()
+
+def run():
+    instructions = parseInstructions(sys.argv[1])
+    print('Easter Bunny HQ distance:', findMinDist(instructions))
+
+if __name__ == '__main__':
+    run()
