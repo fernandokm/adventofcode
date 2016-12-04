@@ -137,7 +137,7 @@ include-naming-hint=no
 property-classes=abc.abstractproperty
 
 # Regular expression matching correct argument names
-argument-rgx=[a-z_][A-Za-z0-9_]{2,30}$
+argument-rgx=[a-z_][A-Za-z0-9_]{,30}$
 
 # Naming hint for argument names
 argument-name-hint=[a-z_][a-z0-9_]{2,30}$
@@ -161,7 +161,7 @@ inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
 inlinevar-name-hint=[A-Za-z_][A-Za-z0-9_]*$
 
 # Regular expression matching correct variable names
-variable-rgx=[a-z_][A-Za-z0-9_]{2,30}$
+variable-rgx=[a-z_][A-Za-z0-9_]{,30}$
 
 # Naming hint for variable names
 variable-name-hint=[a-z_][a-z0-9_]{2,30}$
