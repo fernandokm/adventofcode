@@ -1,8 +1,23 @@
 #!/usr/bin/env python3
 # Copyright (C) 2016 Fernando Matsumoto
 
+"""
+Advent of Code - 2015
+Day 7: Some Assembly Required
+
+
+"""
+
 import sys
 import operator
+
+OPS = {
+    'NOT': lambda x: ~x & 0xFFFF,
+    'AND': operator.and_,
+    'OR': operator.or_,
+    'LSHIFT': operator.lshift,
+    'RSHIFT': operator.rshift
+}
 
 def parseGateInput(x):
     try:
@@ -12,19 +27,18 @@ def parseGateInput(x):
         return operator.itemgetter(x)
 
 def parseInstruction(s):
-    ops={'NOT': lambda x: ~x & 0xFFFF, 'AND': operator.and_, 'OR': operator.or_, 'LSHIFT': operator.lshift, 'RSHIFT': operator.rshift}
     expr, out = s.split(' -> ')
     parts = expr.split(' ')
     if len(parts) == 3:
-        op = ops[parts[1]]
+        op = OPS[parts[1]]
         args = parseGateInput(parts[0]), parseGateInput(parts[2])
     elif len(parts) == 2:
-        op = ops[parts[0]]
+        op = OPS[parts[0]]
         args = parseGateInput(parts[1]),
     else:
         op = operator.pos
         args = parseGateInput(parts[0]),
-    
+
     return op, args, out
 
 def setConnection(circuit, instruction):
@@ -39,22 +53,23 @@ def turnOn(circuit):
             if callable(v):
                 try:
                     circuit[k] = v()
-                except:
+                except TypeError:
                     done = False
 
-if __name__ == '__main__':
-    instructions = list(map(parseInstruction, sys.argv[1:]))
+def run():
+    instructions = [parseInstruction(line) for line in sys.argv[1:]]
+    circuit1 = dict()
+    for i in instructions:
+        setConnection(circuit1, i)
+    turnOn(circuit1)
+    print('Wire "a" (Part One):', circuit1['a'])
 
-    circuit = dict()
+    circuit2 = dict()
     for i in instructions:
-        setConnection(circuit, i)
-    turnOn(circuit)
-    a = circuit['a']
-    print('Wire "a":', a)
-        
-    circuit = dict()
-    for i in instructions:
-        setConnection(circuit, i)
-    setConnection(circuit, parseInstruction(str(a) + ' -> b'))
-    turnOn(circuit)
-    print('Wire "a":', circuit['a'])
+        setConnection(circuit2, i)
+    setConnection(circuit2, parseInstruction(str(circuit1['a']) + ' -> b'))
+    turnOn(circuit2)
+    print('Wire "a":', circuit2['a'])
+
+if __name__ == '__main__':
+    run()
