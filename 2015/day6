@@ -1,6 +1,32 @@
 #!/usr/bin/env python3
 # Copyright (C) 2016 Fernando Matsumoto
 
+"""
+Advent of Code - 2015
+Day 6: Probably a Fire Hazard
+
+Part One: given instructions to turn on, turn off
+          or toggle specific lights in a 1000x1000
+          grid, calculate the number of lights that
+          are lit after following the instructions.
+
+Part Two: if all lights start with brightness 0,
+          calculate the total brightness of all
+          lights after following the instructions,
+          given that
+              'turn on' means increase brightness by 1
+              'turn off' means decrease brightness by 1
+                         to a minimum of zero
+              'toggle' means increase brightness by 2
+
+Instruction format:
+    each line contains a instruction of the form
+    (turn on|turn off|toggle) <x0,y0> through <x1,y1>
+    where <x0, y0> and <x1, y1> represent the corners
+    of the rectangular region of lights that should
+    be affected.
+"""
+
 import re
 import sys
 import numpy as np
@@ -8,47 +34,51 @@ import numpy as np
 def setRange(arr, _range, val):
     arr[_range] = val
 
-on_off = {'turn on': (lambda lights, i: setRange(lights, i, True)),
-        'turn off': (lambda lights, i: setRange(lights, i, False)),
-        'toggle': (lambda lights, i: setRange(lights, i, np.invert(lights[i])))
-        }
-
 def addRange(arr, _range, add):
-    lights[_range] += add
+    arr[_range] += add
 
 def gradient_turnoff(arr, _range):
-    lights[_range][lights[_range] > 0]  -= 1
+    arr[_range][arr[_range] > 0] -= 1
 
-gradient = {'turn on': (lambda lights, i: addRange(lights, i, 1)),
-        'turn off': gradient_turnoff,
-        'toggle': (lambda lights, i: addRange(lights, i, 2))
-        }
+ON_OFF = {
+    'turn on': (lambda lights, i: setRange(lights, i, True)),
+    'turn off': (lambda lights, i: setRange(lights, i, False)),
+    'toggle': (lambda lights, i: setRange(lights, i, np.invert(lights[i])))
+}
 
-def parseInstruction(s, pattern=re.compile('(turn on|turn off|toggle) (\d+,\d+) through (\d+,\d+)')):
-    match = pattern.match(s)
+GRADIENT = {
+    'turn on': (lambda lights, i: addRange(lights, i, 1)),
+    'turn off': gradient_turnoff,
+    'toggle': (lambda lights, i: addRange(lights, i, 2))
+}
+
+def parseInstruction(s):
+    match = re.match(r'(turn on|turn off|toggle) (\d+,\d+) through (\d+,\d+)', s)
     operation = match.groups()[0]
-    start = tuple(map(int, match.groups()[1].split(',')))
-    end = tuple(map(int, match.groups()[2].split(',')))
+    start = tuple(int(x) for x in match.groups()[1].split(','))
+    end = tuple(int(x) for x in match.groups()[2].split(','))
     return operation, start, end
 
-def get2dRange(start, end, inclusive=True):
+def get2dRange(start, end):
     (x1, y1), (x2, y2) = start, end
-    return slice(x1, x2+inclusive), slice(y1, y2+inclusive)
+    return slice(x1, x2+1), slice(y1, y2+1)
 
-def execute(instruction, lights, ops):
+def execute(instruction, lights, op_set):
     operation, start, end = instruction
-    op = ops[operation]
+    op = op_set[operation]
     op(lights, get2dRange(start, end))
 
-if __name__ == '__main__':
-    instructions = list(map(parseInstruction, sys.argv[1:]))
-
-    lights = np.zeros((1000,1000), np.bool)
+def run():
+    instructions = [parseInstruction(x) for x in sys.argv[1:]]
+    lights = np.zeros((1000, 1000), np.bool)
     for i in instructions:
-        execute(i, lights, on_off)
+        execute(i, lights, ON_OFF)
     print('Lights lit: ', lights.sum())
 
-    lights = np.zeros((1000,1000), np.int16)
+    lights = np.zeros((1000, 1000), np.int16)
     for i in instructions:
-        execute(i, lights, gradient)
+        execute(i, lights, GRADIENT)
     print('Light brightness: ', lights.sum())
+
+if __name__ == '__main__':
+    run()
