@@ -1,6 +1,32 @@
 #!/usr/bin/env python3
 # Copyright (C) 2016 Fernando Matsumoto
 
+"""
+Advent of Code - 2016
+Day 5: Doesn't He Have Intern-Elves For This?
+
+For both parts, find the number of nice strings
+in the input
+
+Part One: a string is nice if
+    - it contains at least three vowels
+    - it contains at least one letter that
+      appears twice in a row
+    - it does not contain any of the strings:
+      'ab, 'cd', 'pq', 'xy'
+
+Part Two: a string is nice if:
+    - it cotains a pair of two letters that appears
+      at least twice (without overlapping) in the string.
+      E.g. 'xxyxx'
+    - it contains at least one letter which appears
+      repeated and separated by one letter.
+      E.g. 'aba', 'aaa'
+
+Instruction format: each input line contains
+                    a different string
+"""
+
 import sys
 
 def isNice(s):
@@ -14,8 +40,10 @@ def isNice2(s):
     hasRepeatedLetter = any(s[i] == s[i+2] for i in range(len(s)-2))
     return hasRepeatedPair and hasRepeatedLetter
 
-if __name__ == '__main__':
+def run():
     strings = sys.argv[1:]
+    print('Nice strings (Part One)', sum(isNice(x) for x in strings))
+    print('Nice strings (Part Two)', sum(isNice2(x) for x in strings))
 
-    print('There are', sum(map(isNice, strings)), 'nice strings')
-    print('There are', sum(map(isNice2, strings)), 'really nice strings')
+if __name__ == '__main__':
+    run()
