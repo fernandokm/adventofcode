@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# Copyright (C) 2016 Fernando Matsumoto
+
+"""
+Advent of Code - 2016
+Day 4: Security Through Obscurity
+
+Part One: given a list of rooms, find the sum
+          of the sector IDs of the real rooms.
+          A real room is one whose checksum is
+          the five most common letters in the
+          encrypted name, in order, with ties
+          broken alphabetically.
+
+Part Two: decrypt the names of the real rooms
+          to find out the sector ID of the room
+          where North Pole objects are stored.
+          In order to decrypt, turn dashes into
+          spaces and rotate each letter forward
+          by the rooms sector ID.
+
+Instruction format: each line will represent
+                    a room in the format:
+                    <name>-<sectorID>[<checksum>]
+                    E.g. abc-def-987[abcde]
+                         represents a real room
+"""
+
+import sys
+from collections import Counter
+
+def parseRoom(s):
+    lastDash = s.rindex('-')
+    lastBracket = s.rindex('[')
+    name = s[:lastDash]
+    sectorId = s[lastDash+1:lastBracket]
+    check = s[lastBracket+1:-1]
+    return name, int(sectorId), check
+
+def checksum(name):
+    c = Counter(name)
+    del c['-']
+    letters = sorted(c.items(), key=lambda x: (-x[1], x[0]))
+    return ''.join([x[0] for x in letters[:5]])
+
+def isRoomReal(room):
+    name, _, check = room
+    return check == checksum(name)
+
+def rotateLetter(letter, amount):
+    return chr((ord(letter) - ord('a') + amount) % 26 + ord('a'))
+
+def decryptRoomName(room):
+    name, sectId, _ = room
+    return ''.join([' ' if ch == '-' else rotateLetter(ch, sectId)
+                    for ch in name])
+
+def run():
+    rooms = [parseRoom(s) for s in sys.argv[1:]]
+    realRooms = [room for room in rooms if isRoomReal(room)]
+    print('Sum of the IDs of the real rooms:', sum(room[1] for room in realRooms))
+
+    northPoleIds = [room[1] for room in realRooms if 'north' in decryptRoomName(room)]
+    print('Noth pole room sector IDs:', northPoleIds)
+
+if __name__ == '__main__':
+    run()
