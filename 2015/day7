@@ -5,7 +5,27 @@
 Advent of Code - 2015
 Day 7: Some Assembly Required
 
+Part One: given a set of instructions describing
+          the signals to be provided to some wires
+          and the gates connecting those wires to
+          other wires, find the signal utimately
+          provided to wire "a".
 
+Part Two: after overriding wire "b" to the signal
+          provided by wire "a" and reseting all
+          wires other than "b", find the signal
+          utimately provided to wire "a".
+
+Instruction format:
+    the lines will follow one of the formats
+        <signal> -> <wire>
+        NOT <wire1> -> <wire2>
+        <wire1> <binGate> <wire2> -> <wire3>
+    where the wires are identified by strings of
+    lowercase letters, signals are 16-bit unsigned
+    integers and <binGate> is one of: AND, OR,
+    LSHIFT, RSHIFT. The signal flows from the left
+    side of the arrow to the right side.
 """
 
 import sys
@@ -69,7 +89,7 @@ def run():
         setConnection(circuit2, i)
     setConnection(circuit2, parseInstruction(str(circuit1['a']) + ' -> b'))
     turnOn(circuit2)
-    print('Wire "a":', circuit2['a'])
+    print('Wire "a" (Part Two):', circuit2['a'])
 
 if __name__ == '__main__':
     run()
