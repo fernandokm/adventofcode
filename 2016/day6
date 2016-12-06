@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+# Copyright (C) 2016 Fernando Matsumoto
+
+"""
+Advent of Code - 2016
+Day 6: Signals and Noise
+
+Part One: given a set of corrupted messages (a repetition
+          code), find the error-corrected message by taking
+          the most common character for each position in the
+          corrupted strings.
+
+Part Two: given the same corrupted messages, find the original
+          message by using a modified repetition code (take the
+          least common character for each position in the
+          corrupted strings).
+
+Instruction format: each line contains a corrupted message.
+"""
+
+import sys
+from collections import Counter
+
+
+def errorCorrect(ss):
+    chars = [Counter(s[i] for s in ss).most_common() for i in range(len(ss[0]))]
+    return ''.join(c[0][0] for c in chars), \
+           ''.join(c[-1][0] for c in chars)
+
+
+def run():
+    messages = sys.argv[1:]
+    corrected, original = errorCorrect(messages)
+    print('Error-corrected message:', corrected)
+    print('Original message:', original)
+
+DOOR_ID = sys.argv[1]
+
+if __name__ == '__main__':
+    run()
