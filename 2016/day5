@@ -12,7 +12,13 @@ Part One: given a door ID, find the eight-character
           resulting string starts with '00000', append
           the sixth character of the hash to the password.
 
-Part Two:
+Part Two: using the same door ID, find the eight-character
+          password for the door. Use the same process
+          as for Part One, except that the sixth character
+          represents the position in which the seventh
+          character should appear in the password. Ignore
+          invalid positions and use only the first
+          character for each position.
 
 Instruction format: the door ID
 """
