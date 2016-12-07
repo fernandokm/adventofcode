@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# Copyright (C) 2016 Fernando Matsumoto
+
+"""
+Advent of Code - 2016
+Day 6: Internet Protocol Version 7
+
+Part One: given a set of IP adresses, find how many of
+          them support TLS (transport-layer snooping).
+          An IP supports TLS if it has at least one
+          ABBA, but no ABBAs enclosed by square brackets.
+          An ABBA is a pair of different characters
+          followed by the reverse of that pair.
+
+Part Two: given the same IP adresses, find how many of
+          them support SSL (super-secret listening).
+          An IP supports SSL if it has an ABA not enclosed
+          by square brackets and a corresponding BAB
+          enclosed by square brackets. Given any two
+          characters x & y, an ABA consists of the sequence
+          xyx and the corresponding BAB is the sequence yxy.
+
+Instruction format: each line contains an IP address.
+"""
+
+import sys
+import regex
+
+BRACKETED = r'\w*\]'
+UNBRACKETED = r'(?!\w*\])'
+
+ABBA = regex.compile(r'(.)(?!\1)(.)\2\1' + UNBRACKETED)
+SQ_ABBA = regex.compile(r'(.)(?!\1)(.)\2\1' + BRACKETED)
+
+ABA = regex.compile(r'((.)(?!\2).\2)' + UNBRACKETED)
+BAB = regex.compile(r'((.)(?!\2).\2)' + BRACKETED)
+
+def supportsTLS(ip):
+    return bool(ABBA.search(ip) and not SQ_ABBA.search(ip))
+
+def supportsSSL(ip):
+    abas = [x[0] for x in ABA.findall(ip, overlapped=True)]
+    babs = [x[0] for x in BAB.findall(ip, overlapped=True)]
+    return any(aba[1] + aba[0] + aba[1] in babs for aba in abas)
+
+def run():
+    ips = sys.argv[1:]
+    print('Number of IPs that support TLS:', sum(supportsTLS(ip) for ip in ips))
+    print('Number of IPs that support SSL:', sum(supportsSSL(ip) for ip in ips))
+
+if __name__ == '__main__':
+    run()
