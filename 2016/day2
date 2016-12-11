@@ -4,6 +4,7 @@
 """
 Advent of Code - 2016
 Day 2: Bathroom Security
+(http://adventofcode.com/2016/day/2)
 
 Given a sequence of instructions, find the code to
 the Easter Bunny Headquarters bathroom.

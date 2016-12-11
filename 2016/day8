@@ -4,6 +4,7 @@
 """
 Advent of Code - 2016
 Day 8: Two-Factor Authentication
+(http://adventofcode.com/2016/day/8)
 
 Part One: given a set of instructions for a 50 pixels wide
           by 6 pixels tall screen, find how many pixels

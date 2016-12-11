@@ -3,7 +3,8 @@
 
 """
 Advent of Code - 2016
-Day 6: Internet Protocol Version 7
+Day 7: Internet Protocol Version 7
+(http://adventofcode.com/2016/day/7)
 
 Part One: given a set of IP adresses, find how many of
           them support TLS (transport-layer snooping).

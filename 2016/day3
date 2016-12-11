@@ -4,6 +4,7 @@
 """
 Advent of Code - 2016
 Day 3: Squares With Three Sides
+(http://adventofcode.com/2016/day/3)
 
 Given a sequence of lines describing the side lengths
 of a triangle, calculate how many of them are possible.

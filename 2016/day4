@@ -4,6 +4,7 @@
 """
 Advent of Code - 2016
 Day 4: Security Through Obscurity
+(http://adventofcode.com/2016/day/4)
 
 Part One: given a list of rooms, find the sum
           of the sector IDs of the real rooms.

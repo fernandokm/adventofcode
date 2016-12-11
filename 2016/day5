@@ -4,6 +4,7 @@
 """
 Advent of Code - 2016
 Day 5: How About a Nice Game of Chess?
+(http://adventofcode.com/2016/day/5)
 
 Part One: given a door ID, find the eight-character
           password for the door. Using an increasing
